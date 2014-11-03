@@ -2,9 +2,12 @@
 
 ### gulp.src(globs[, options])
 
-Takes a glob and represents a file structure. Returns a [stream](http://nodejs.org/api/stream.html) of [Vinyl files](https://github.com/wearefractal/vinyl-fs) that can be [piped](http://nodejs.org/api/stream.html#stream_readable_pipe_destination_options) to plugins.
+Emits files matching provided glob or an array of globs. 
+Returns a [stream](http://nodejs.org/api/stream.html) of [Vinyl files](https://github.com/wearefractal/vinyl-fs) 
+that can be [piped](http://nodejs.org/api/stream.html#stream_readable_pipe_destination_options) 
+to plugins.
 
-```js
+```javascript
 gulp.src('client/templates/*.jade')
   .pipe(jade())
   .pipe(minify())
@@ -16,7 +19,7 @@ gulp.src('client/templates/*.jade')
 #### globs
 Type: `String` or `Array`
 
-Glob or globs to read.
+Glob or array of globs to read.
 
 #### options
 Type: `Object`
@@ -37,6 +40,22 @@ Default: `true`
 
 Setting this to `false` will return `file.contents` as null and not read the file at all.
 
+#### options.base
+Type: `String`
+Default: everything before a glob starts (see [glob2base])
+
+E.g., consider `somefile.js` in `client/js/somedir`:
+
+```js
+gulp.src('client/js/**/*.js') // Matches 'client/js/somedir/somefile.js' and resolves `base` to `client/js/`
+  .pipe(minify())
+  .pipe(gulp.dest('build'));  // Writes 'build/somedir/somefile.js'
+
+gulp.src('client/js/**/*.js', { base: 'client' })
+  .pipe(minify())
+  .pipe(gulp.dest('build'));  // Writes 'build/js/somedir/somefile.js'
+```
+
 ### gulp.dest(path[, options])
 
 Can be piped to and it will write files. Re-emits all data passed to it so you can pipe to multiple folders.  Folders that don't exist will be created.
@@ -48,6 +67,10 @@ gulp.src('./client/templates/*.jade')
   .pipe(minify())
   .pipe(gulp.dest('./build/minified_templates'));
 ```
+
+The write path is calculated by appending the file relative path to the given
+destination directory. In turn, relative paths are calculated against the file base. 
+See `gulp.src` above for more info.
 
 #### path
 Type: `String` or `Function`
@@ -247,3 +270,4 @@ The path to the file that triggered the event.
 [glob-stream]: https://github.com/wearefractal/glob-stream
 [gulp-if]: https://github.com/robrich/gulp-if
 [Orchestrator]: https://github.com/robrich/orchestrator
+[glob2base]: https://github.com/wearefractal/glob2base
